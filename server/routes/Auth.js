@@ -10,14 +10,14 @@ const jwt = require('jsonwebtoken');
 Auth.post('/register', async (req, res, next) => {
   const { userName, email, password } = req.body;
 
-  const newUser = new User({
+  const newUsertoRegister = new User({
     userName,
     userEmail: email,
     password: CryptoJS.AES.encrypt(password, process.env.SECRET_KEY).toString(),
   });
 
   try {
-    const user = await newUser.save();
+    const user = await newUsertoRegister.save();
     console.log(user);
     res.status(201).json(user);
   } catch (err) {
@@ -45,12 +45,12 @@ Auth.post('/login', async (req, res) => {
     !authRequestingUser && res.status(401).json('Wrong pass or username');
 
     // decrypt the db stored password provided password
-    const originalUserPassword = CryptoJS.AES.decrypt(
+    const userPasswordStored = CryptoJS.AES.decrypt(
       user.password,
       process.env.SECRET_KEY
     ).toString(CryptoJS.enc.Utf8);
 
-    originalUserPassword !== password &&
+    userPasswordStored !== password &&
       res.status(401).json('Wrong password or username!');
 
     const accessToken = jwt.sign(
