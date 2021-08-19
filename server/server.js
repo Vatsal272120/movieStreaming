@@ -3,11 +3,15 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv').config();
 const cors = require('cors');
 const { MongoClient } = require('mongodb');
+const Auth = require('./routes/Auth');
 
 const app = express();
 
 // middlewares
 app.use(express.json());
+
+// routes
+app.use(Auth);
 
 // database connection and server is running on port
 mongoose
