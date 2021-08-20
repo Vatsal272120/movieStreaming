@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv').config();
 const cors = require('cors');
 const Auth = require('./routes/Auth');
+const Users = require('./routes/Users');
+const Movies = require('./routes/Movies');
+const Lists = require( './routes/Lists' );
 
 const app = express();
 
@@ -10,10 +13,21 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// routes
+/*  ROUTES */
+
+// Register and Login with JWT Authentication
 app.use(Auth);
 
-// database connection and server is running on port
+// User CRUD Operations
+app.use(Users);
+
+// Movie CRUD Operations
+app.use(Movies);
+
+// Movie lists CRUD operations
+app.use(Lists);
+
+// MongoDB Connection
 mongoose
   .connect(process.env.MONGO, {
     useNewUrlParser: true,
