@@ -36,30 +36,28 @@ User login route
  */
 
 Auth.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
   try {
-    // find the user, by the email
+    const authRequestingUser = await User.findOne({
+      userEmail: req.body.email,
+    });
+    !authRequestingUser && res.status(401).json('Wrong password or username!');
 
-    const authRequestingUser = await User.findOne({ userEmail: email });
-    !authRequestingUser && res.status(401).json('Wrong pass or username');
-
-    // decrypt the db stored password provided password
-    const userPasswordStored = CryptoJS.AES.decrypt(
-      user.password,
+    const decryptedPassArray = CryptoJS.AES.decrypt(
+      authRequestingUser.password,
       process.env.SECRET_KEY
-    ).toString(CryptoJS.enc.Utf8);
+    );
+    const originalPassword = decryptedPassArray.toString(CryptoJS.enc.Utf8);
 
-    userPasswordStored !== password &&
+    originalPassword !== req.body.password &&
       res.status(401).json('Wrong password or username!');
 
     const accessToken = jwt.sign(
-      { id: user._id, isAdmin: user.isAdmin },
+      { id: authRequestingUser._id, isAdmin: authRequestingUser.isAdmin },
       process.env.SECRET_KEY,
       { expiresIn: '5d' }
     );
 
-    const { password, ...info } = user._doc;
+    const { password, ...info } = authRequestingUser._doc;
 
     res.status(200).json({ ...info, accessToken });
   } catch (err) {
